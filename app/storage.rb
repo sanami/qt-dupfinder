@@ -38,6 +38,7 @@ class Storage
 	def load
 		@is_changed = false
 		@files = YAML.load_file @db_file
+		puts "Storage.loaded: #{@files.count}"
 	rescue
 		@files = {}
 	end
@@ -47,6 +48,7 @@ class Storage
 			File.open( @db_file, 'w' ) do |out|
 				YAML.dump( @files, out )
 			end
+			puts "Storage.saved: #{@files.count}"
 		end
 	end
 

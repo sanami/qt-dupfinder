@@ -55,12 +55,23 @@ describe Finder do
 		found.should be_false
 	end
 
-	it "should run" do
+	it "should compare two folders" do
 		folder1 = TEST_DIR + 'folder1'
 		folder2 = TEST_DIR + 'folder2'
-		subject.run(folder1, folder2) do |files1, files2|
+		subject.compare(folder1, folder2) do |files1, files2|
 			pp [files1, files2]
 			pp '------------------------'
 		end
+	end
+
+	it "should find dups in folder" do
+		folder1 = TEST_DIR + 'folder1'
+		found = false
+		subject.run(folder1) do |files|
+			pp files
+			pp '------------------------'
+			found = true
+		end
+		found.should be_true
 	end
 end

@@ -102,22 +102,37 @@ private
 	##
 	# Запустить поиск
 	def on_action_start_triggered
+		tab = @ui.tabWidget.tabText(@ui.tabWidget.currentIndex)
+		case tab
+			when 'Compare'
+				compare_folders
+			when 'Find'
+				find_in_folder
+			else
+				pp tab
+		end
+	end
+
+	##
+	# Сравнение двух каталогов
+	def compare_folders
 		folder1 = @ui.lineEdit.text
 		folder2 = @ui.lineEdit_2.text
 
 		@ui.treeWidget.clear
 
-		@finder.run(folder1, folder2) do |files1, files2|
+		@finder.compare(folder1, folder2) do |files1, files2|
 			pp [files1, files2]
 			pp '------------------------'
-			max_index = [files1.count, files2.count ].max
-			file_size = files1[0].size
+			file_size = files1[0].size.to_s
 			parent_it = nil
+
+			max_index = [files1.count, files2.count ].max
 			max_index.times do |i|
 				text1 = "#{files1[i]}"
 				text2 = "#{files2[i]}"
 
-				columns = [ text1, text2, file_size.to_s ]
+				columns = [ text1, text2, file_size ]
 
 				if parent_it
 					Qt::TreeWidgetItem.new parent_it, columns
@@ -129,11 +144,29 @@ private
 			end
 
 		end
-
 	end
 
-	#		Qt::TreeWidgetItem.new @ui.treeWidget, [dir]
-	#Qt::DesktopServices::openUrl(Qt::Url.new("file://#{@settings.current_file}"));
+	##
+	# Поиск дубликатов в каталоге
+	def find_in_folder
+		folder = @ui.lineEdit_3.text
+
+		@ui.treeWidget_2.clear
+		@finder.run(folder) do |dup_files|
+			pp dup_files
+			pp '------------------------'
+
+			parent_it = nil
+			dup_files.each do |file|
+				if parent_it
+					Qt::TreeWidgetItem.new parent_it, [ nil, file.to_s ]
+				else
+					parent_it = Qt::TreeWidgetItem.new @ui.treeWidget_2, [ file.size.to_s, file.to_s ]
+					parent_it.setExpanded true
+				end
+			end
+		end
+	end
 
 	##
 	#

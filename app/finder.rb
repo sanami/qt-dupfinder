@@ -8,13 +8,29 @@ class Finder
 	end
 
 	# Сравнить два каталога
-	def run(folder1, folder2)
+	def compare(folder1, folder2)
+		pp "Finder#compare(#{folder1}, #{folder2})"
 		by_size1 = group_by_size list(folder1)
 		by_size2 = group_by_size list(folder2)
 
 		find_by_size(by_size1, by_size2) do |list1, list2|
 			find_by_content(list1, list2) do |files1, files2|
 				yield files1, files2
+			end
+		end
+	end
+
+	##
+	# Поиск дубликатов в каталоге
+	def run(folder)
+		by_size = group_by_size list(folder)
+
+		by_size.each do |size, same_size_files|
+			if same_size_files.count > 1
+				by_digest = same_size_files.group_by { |file| get_digest file }
+				by_digest.each do |digest, same_digest_files|
+					yield same_digest_files if same_digest_files.count > 1
+				end
 			end
 		end
 	end
