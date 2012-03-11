@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>857</width>
+    <width>670</width>
     <height>718</height>
    </rect>
   </property>
@@ -156,8 +156,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>857</width>
-     <height>27</height>
+     <width>670</width>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -185,6 +185,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_start"/>
+   <addaction name="action_delete_all"/>
   </widget>
   <action name="action_save">
    <property name="icon">
@@ -249,6 +250,14 @@
   <action name="action_delete_files">
    <property name="text">
     <string>Delete files</string>
+   </property>
+  </action>
+  <action name="action_delete_all">
+   <property name="text">
+    <string>Delete all</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete all duplicates</string>
    </property>
   </action>
  </widget>
