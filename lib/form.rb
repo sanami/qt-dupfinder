@@ -32,7 +32,6 @@ class Form < Qt::MainWindow
   end
 
 protected
-  ##
   # Не должен быть private
   def closeEvent(e)
     unless $debug
@@ -50,7 +49,6 @@ protected
   end
 
 private
-  ##
   # Инициализация GUI
   def init_ui
     @ui = Ui::Form.new
@@ -86,25 +84,21 @@ private
 
   end
 
-  ##
   # В отдельный таб со списком сообщений
   def log(str)
     @ui.textEdit.append str
   end
 
-  ##
   # Сообщение в строке статуса
   def show_message(str)
     statusBar.showMessage str
   end
 
-  ##
   # Выйти из программы
   def on_action_quit_triggered
     $qApp.quit
   end
 
-  ##
   # Запустить поиск
   def on_action_start_triggered
     tab = @ui.tabWidget.tabText(@ui.tabWidget.currentIndex)
@@ -118,7 +112,6 @@ private
     end
   end
 
-  ##
   # Вызывается из меню
   def on_action_delete_files_triggered
     delete_selected_files @ui.treeWidget_2
@@ -133,7 +126,6 @@ private
     #end
   end
 
-  ##
   # Сравнение двух каталогов
   def compare_folders
     folder1 = @ui.lineEdit.text
@@ -169,7 +161,6 @@ private
     end
   end
 
-  ##
   # Поиск дубликатов в каталоге
   def find_in_folder
     folder = @ui.lineEdit_3.text
@@ -218,14 +209,12 @@ private
 
   end
 
-  ##
   # Открыть документ или архив
   def on_treeWidget_2_itemDoubleClicked(it, column)
     url = Qt::Url.new("file:///" + it.text(1))
     Qt::DesktopServices::openUrl(url);
   end
 
-  ##
   # Выбрать каталог
   def select_folder(control)
     dir_name = Qt::FileDialog::getExistingDirectory(self, 'Select folder', control.text, Qt::FileDialog::ShowDirsOnly)
@@ -246,7 +235,6 @@ private
     select_folder @ui.lineEdit_3
   end
 
-  ##
   # Удалить файлы выбранные в таблице результатов поиска
   def delete_selected_files(table)
     until (all = table.selectedItems).empty?
@@ -265,14 +253,12 @@ private
     end
   end
 
-  ##
   #
   def on_action_new_triggered
     #if Qt::MessageBox::question(self, "Confirm Clear", "Are you sure?", Qt::MessageBox::Ok, Qt::MessageBox::Cancel) == Qt::MessageBox::Ok
     #end
   end
 
-  ##
   # Открыть диалог добавление каталога
   def on_action_open_triggered
     #@settings.current_dir ||= '.'
@@ -283,12 +269,10 @@ private
     #end
   end
 
-  ##
   #
   def on_comboBox_currentIndexChanged(text)
   end
 
-  ##
   #
   def on_checkBox_clicked
 #		if @ui.checkBox.checked?
@@ -296,7 +280,6 @@ private
 #	  end
   end
 
-  ##
   # Загрузка и применение настроек
   def load_settings
     if @settings.form_geometry
@@ -308,7 +291,6 @@ private
     @ui.lineEdit_3.text = @settings.folder3
   end
 
-  ##
   # Сохранение настроек
   def save_settings
     @settings.form_geometry = self.saveGeometry.to_s

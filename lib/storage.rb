@@ -1,7 +1,6 @@
 require 'yaml'
 require 'crc32.rb'
 
-##
 # Хранилище информации о файлах
 class Storage
   Info = Struct.new(:mtime, :size, :crc)

@@ -76,7 +76,7 @@ describe Finder do
   end
 
   it "should fix file name" do
-    subject.fix_file_name '/media/truecrypt1/'
+    #subject.fix_file_name '/media/truecrypt1/'
   end
 
   it "should run" do

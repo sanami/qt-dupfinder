@@ -1,4 +1,3 @@
-# encoding: utf-8
 require 'optparse'
 require 'finder.rb'
 require 'storage.rb'
@@ -19,7 +18,6 @@ class App
     #end
   end
 
-  ##
   # Старт
   def run(run_mode = nil)
     case run_mode || @options.run_mode
@@ -37,7 +35,6 @@ class App
 
 private
 
-  ##
   # Настройки из командной строки
   def parse_cmd_line
     @options = OpenStruct.new
@@ -65,7 +62,6 @@ private
     @cmd_line_opts.parse!
   end
 
-  ##
   # Консольный режим
   def run_console
     #puts "Process #{@options.pics_path}"
@@ -83,7 +79,6 @@ private
     #end
   end
 
-  ##
   # GUI режим
   def run_gui()
     require 'form.rb'

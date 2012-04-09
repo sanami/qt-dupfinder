@@ -20,7 +20,6 @@ class Finder
     end
   end
 
-  ##
   # Поиск дубликатов в каталоге
   def run(folder)
     by_size = group_by_size list(folder)

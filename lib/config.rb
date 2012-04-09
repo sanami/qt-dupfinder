@@ -18,7 +18,7 @@ end
 end
 
 # Required folders
-['app', 'lib'].each do |folder|
+['lib'].each do |folder|
   $: << ROOT(folder)
 end
 #pp $:

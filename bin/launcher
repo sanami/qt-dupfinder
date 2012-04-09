@@ -1,0 +1,9 @@
+#!/bin/bash
+#. rvm use 1.8.7
+
+#echo "$(dirname "$0")"
+#cd "$(dirname "$0")"
+
+#cd "/home/sa/projects/dup_finder/bin"
+#pwd
+ruby ../lib/main.rb -m gui
