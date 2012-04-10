@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'finder.rb'
+require 'storage.rb'
 
 describe Finder do
 
@@ -80,10 +81,19 @@ describe Finder do
   end
 
   it "should run" do
-    folder = '/media/truecrypt2'
-    subject.run(folder) do |files|
-      pp files
-      puts '-'*77
-    end
+    #folder = '/media/truecrypt2'
+    #subject.run(folder) do |files|
+    #  pp files
+    #  puts '-'*77
+    #end
+  end
+
+  it "should clean second folder" do
+    storage = Storage.new(ROOT('db/storage_books.yaml'))
+    finder = Finder.new storage
+
+    #finder.clean_folder :main_folder => '/home/sa/Books', :clean_folder => '/home/sa/Books1', :action => :delete
+
+    storage.save
   end
 end

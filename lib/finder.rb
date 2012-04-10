@@ -7,6 +7,32 @@ class Finder
     @storage = storage
   end
 
+  # Delete duplicate files from folder
+  #
+  # :main_folder Main folder
+  # :clean_folder Folder to clean
+  # :action - :pretend no delete, :delete real
+  def clean_folder(params)
+    params[:action] ||= :pretend
+    if params[:main_folder] && params[:clean_folder]
+      self.compare(params[:main_folder], params[:clean_folder]) do |files1, files2|
+        pp files1#, files2
+
+
+        # Remove all duplicates
+        files2.each do |dup_file|
+          puts "\t#{dup_file}"
+          if params[:action] == :delete
+            File.delete dup_file
+            puts "\t\tdeleted"
+          end
+        end
+
+        puts '------------------------'
+      end
+    end
+  end
+
   # Сравнить два каталога
   def compare(folder1, folder2)
     pp "Finder#compare(#{folder1}, #{folder2})"
