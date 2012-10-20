@@ -46,9 +46,21 @@ class Finder
     end
   end
 
-  # Поиск дубликатов в каталоге
-  def run(folder)
-    by_size = group_by_size list(folder)
+  # Поиск дубликатов в каталогах
+  def run(folder_list)
+    unless folder_list.is_a? Enumerable
+      folder_list = [folder_list]
+    end
+
+    all_files = []
+    folder_list.each do |folder|
+      if File.exist?(folder)
+        list(folder, all_files)
+      else
+        puts "Folder not exist: #{folder}"
+      end
+    end
+    by_size = group_by_size(all_files)
 
     by_size.each do |size, same_size_files|
       if same_size_files.count > 1
@@ -61,8 +73,7 @@ class Finder
   end
 
   # Список файлов каталога
-  def list(folder)
-    all = []
+  def list(folder, all = [])
     Find.find(folder) do |path|
       path = Pathname.new path
       if path.file?

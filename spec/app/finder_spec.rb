@@ -65,10 +65,22 @@ describe Finder do
     end
   end
 
-  it "should find dups in folder" do
+  it "should find dups in single folder" do
     folder1 = TEST_DIR + 'folder1'
     found = false
     subject.run(folder1) do |files|
+      pp files
+      pp '------------------------'
+      found = true
+    end
+    found.should be_true
+  end
+
+  it "should find dups in multiple folder" do
+    folder1 = TEST_DIR + 'folder1'
+    folder2 = TEST_DIR + 'folder2'
+    found = false
+    subject.run([folder1, folder2]) do |files|
       pp files
       pp '------------------------'
       found = true
