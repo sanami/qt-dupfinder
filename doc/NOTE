@@ -1,0 +1,8 @@
+----------------------------------------------------------------------------- dev
+sudo aptitude install build-essential bison openssl libreadline5 libreadline-dev curl git-core zlib1g zlib1g-dev libssl-dev vim libsqlite3-0 libsqlite3-dev sqlite3 libreadline5-dev libreadline6-dev libxml2-dev git-core subversion autoconf xorg-dev libgl1-mesa-dev libglu1-mesa-dev
+
+----------------------------------------------------------------------------- TODO
++Просмотр
++	Qt::DesktopServices::openUrl(Qt::Url.new("file://#{@settings.current_file}"));
+
+List files in zip archives

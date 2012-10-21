@@ -8,7 +8,7 @@ describe Storage do
 
   it 'should get' do
     test_file = TEST_DIR + '1249409841848.jpg'
-    crc = subject.get test_file
+    crc = subject.get_digest test_file
     #pp subject.files
     crc.should be > 0
     subject.should have(1).files

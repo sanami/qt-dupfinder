@@ -134,16 +134,25 @@ private
 
       # Files in folders to clean
       files_to_delete = all_files.select do |file_path, file_item|
-        file_dir = File.dirname(file_path)
-        to_delete = folders_to_clean.any? {|dir| file_dir.start_with?(dir) }
+        # Skip files archives
+        if file_path.start_with? 'zip://'
+          false
+        else
+          file_dir = File.dirname(file_path)
+          to_delete = folders_to_clean.any? {|dir| file_dir.start_with?(dir) }
+        end
       end
-      #pp files_to_delete.keys
 
       # Leave one file
       if files_to_delete.count == all_files.count
         # First file in 'all_files' is top_item
         top_file = all_files.keys.first
         files_to_delete.delete top_file
+      end
+
+      unless files_to_delete.empty?
+        puts "files_to_delete:"
+        pp files_to_delete.keys
       end
 
       top_item_removed = false
@@ -191,7 +200,7 @@ private
 
   # Открыть документ или архив
   def on_duplicates_itemDoubleClicked(it, column)
-    url = Qt::Url.new("file:///" + it.text(1))
+    url = Qt::Url.fromLocalFile(it.text(1))
     Qt::DesktopServices::openUrl(url);
   end
 

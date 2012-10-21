@@ -2,6 +2,23 @@ require 'spec_helper'
 require 'finder.rb'
 require 'storage.rb'
 
+describe ZipPathname do
+  it "should compare" do
+    a = ZipPathname.new
+    a.name = "1"
+    a.zip_name = "1"
+    a.to_s.should == '1!1'
+
+    b = ZipPathname.new
+    b.name = "1"
+    b.zip_name = "1"
+    pp b.to_s
+
+    a.should == b
+  end
+
+end
+
 describe Finder do
 
   it "should list files in folder" do
@@ -11,14 +28,11 @@ describe Finder do
   end
 
   it "should list unique in folders" do
-    all = subject.list TEST_DIR
-    all.should_not be_empty
-
-    all2 = {}
-    subject.list_unique(TEST_DIR, all2)
-    subject.list_unique(TEST_DIR, all2) # same folder
-    all2 = all2.keys
-    all2.count.should == all.count
+    all = {}
+    subject.list_unique(TEST_DIR, all)
+    count1 = all.count
+    subject.list_unique(TEST_DIR, all) # same folder
+    all.count.should == count1
   end
 
   it "should group list by size" do
@@ -118,5 +132,38 @@ describe Finder do
     #finder.clean_folder :main_folder => '/home/sa/Books', :clean_folder => '/home/sa/Books1', :action => :delete
 
     storage.save
+  end
+
+  it "should list zip archives" do
+    folder3 = TEST_DIR + 'folder3'
+    all = {}
+    subject.list_zip(folder3 + 'from_folder2.zip', all)
+    pp all
+    all.should_not be_empty
+  end
+
+  it "should list unique from folder with zip" do
+    folder3 = TEST_DIR + 'folder3'
+    all = {}
+    subject.list_unique(folder3, all)
+    pp all
+    all.should_not be_empty
+
+    #all2 = {}
+    #subject.list_unique(folder3, all2)
+    #all.each do |k,v|
+    #  pp all2[k]
+    #end
+  end
+
+  it "should find dups in folder with zip" do
+    folder3 = TEST_DIR + 'folder3'
+    found = false
+    subject.run(folder3) do |files|
+      pp files
+      pp '------------------------'
+      found = true
+    end
+    found.should be_true
   end
 end

@@ -1,5 +1,20 @@
 require 'find'
+require 'zip/zip'
 require 'crc32.rb'
+
+# For file in zip archive
+class ZipPathname
+  include Comparable
+  attr_accessor :name, :zip_name, :size, :crc
+
+  def to_s
+    "zip://#{zip_name}!#{name}"
+  end
+
+  def <=>(obj)
+    to_s <=> obj.to_s
+  end
+end
 
 # Поиск одинаковых файлов
 class Finder
@@ -52,6 +67,7 @@ class Finder
       folder_list = [folder_list]
     end
 
+    # Find all files
     all_files = {}
     folder_list.each do |folder|
       if File.exist?(folder)
@@ -60,13 +76,18 @@ class Finder
         puts "Folder not exist: #{folder}"
       end
     end
+
+    # Group files by their sizes
     by_size = group_by_size(all_files.keys)
 
     by_size.each do |size, same_size_files|
       if same_size_files.count > 1
         by_digest = same_size_files.group_by { |file| get_digest file }
+
         by_digest.each do |digest, same_digest_files|
-          yield same_digest_files if same_digest_files.count > 1
+          if same_digest_files.count > 1
+            yield same_digest_files
+          end
         end
       end
     end
@@ -86,15 +107,45 @@ class Finder
 
   # List files not in 'all' Hash
   def list_unique(folder, all)
+    i = 0
     Find.find(folder) do |path|
       path = Pathname.new path
       if path.file? && !all.include?(path)
+        if i % 1000 == 0
+          puts "#{i} #{path}"
+        end
+        i += 1
+
         all[path] = true
+
+        # List archive
+        if path.extname.downcase == '.zip'
+          list_zip(path, all)
+        end
       end
     end
-
-    all
   end
+
+	# List all files in archive
+	def list_zip(zip_file_path, all)
+    puts "#{all.size} Finder#list_zip #{zip_file_path}"
+		zf = Zip::ZipFile.new(zip_file_path)
+		zf.each do |entry|
+			if entry.file?
+        obj = ZipPathname.new
+        obj.name = entry.name
+        obj.zip_name = zip_file_path
+        obj.size = entry.size
+        obj.crc = entry.crc
+
+  			all[obj] = true
+      end
+    end
+    zf.close
+  rescue => ex
+    puts "Bad zip: #{zip_file_path}"
+    pp ex
+	end
 
   # Группировать список по размерам файлов
   def group_by_size(all)
@@ -126,11 +177,16 @@ class Finder
 
   # Вычислить уникальный код
   def get_digest(file)
-    if @storage
-      @storage.get_digest(file)
+    if file.instance_of? ZipPathname
+      # CRC32 from zip listing
+      file.crc
     else
-      @digest_storage ||= {}
-      @digest_storage[file] ||= block_crc32(file, 1000, 1)
+      if @storage
+        @storage.get_digest(file)
+      else
+        @digest_storage ||= {}
+        @digest_storage[file] ||= block_crc32(file, 1000, 1)
+      end
     end
   end
 
