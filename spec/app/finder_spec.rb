@@ -4,10 +4,21 @@ require 'storage.rb'
 
 describe Finder do
 
-  it "should list folder" do
+  it "should list files in folder" do
     all = subject.list TEST_DIR
     all.should_not be_empty
     all.is_a?(Array).should be_true
+  end
+
+  it "should list unique in folders" do
+    all = subject.list TEST_DIR
+    all.should_not be_empty
+
+    all2 = {}
+    subject.list_unique(TEST_DIR, all2)
+    subject.list_unique(TEST_DIR, all2) # same folder
+    all2 = all2.keys
+    all2.count.should == all.count
   end
 
   it "should group list by size" do

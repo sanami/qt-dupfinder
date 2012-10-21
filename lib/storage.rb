@@ -17,7 +17,7 @@ class Storage
   end
 
   # Вычислить уникальный код
-  def get(file)
+  def get_digest(file)
     path_name = file.realpath.to_s
     @files[path_name] ||= Info.new
 

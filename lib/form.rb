@@ -2,11 +2,10 @@ Qt::require ROOT('resources/form.ui'), ROOT('tmp')
 Qt::require ROOT('resources/resources.qrc'), ROOT('tmp')
 
 class Form < Qt::MainWindow
-  slots 'on_action_start_triggered()'
+  slots 'on_start_clicked()'
+  slots 'on_add_folder_clicked()'
+  slots 'on_delete_all_clicked()'
   slots 'on_action_delete_files_triggered()'
-  slots 'on_action_delete_all_triggered()'
-  slots 'on_action_quit_triggered()'
-  slots 'on_action_new_triggered()'
   slots 'on_duplicates_itemDoubleClicked(QTreeWidgetItem *, int)'
 
   def initialize(settings, finder)
@@ -64,13 +63,8 @@ private
     statusBar.showMessage str
   end
 
-  # Выйти из программы
-  def on_action_quit_triggered
-    $qApp.quit
-  end
-
   # Запустить поиск
-  def on_action_start_triggered
+  def on_start_clicked
     find_in_folder
   end
 
@@ -80,7 +74,7 @@ private
   end
 
   # Выбрать каталог
-  def on_action_new_triggered
+  def on_add_folder_clicked
     @settings.last_dir ||= '.'
     dir_name = Qt::FileDialog::getExistingDirectory(self, 'Select folder', @settings.last_dir, Qt::FileDialog::ShowDirsOnly)
     if dir_name
@@ -94,7 +88,6 @@ private
     folders = @ui.folders.toPlainText.split("\n")
     @ui.folders.setReadOnly(true)
     @ui.duplicates.clear
-    $qApp.processEvents
 
     @finder.run(folders) do |dup_files|
       pp dup_files
@@ -119,25 +112,81 @@ private
   end
 
   # Delete all duplicates
-  def on_action_delete_all_triggered
-    if Qt::MessageBox::question(self, "Confirm delete all", "Are you sure?", Qt::MessageBox::Ok, Qt::MessageBox::Cancel) != Qt::MessageBox::Ok
-      return
+  def on_delete_all_clicked
+    #if Qt::MessageBox::question(self, "Confirm delete all", "Are you sure?", Qt::MessageBox::Ok, Qt::MessageBox::Cancel) != Qt::MessageBox::Ok
+    #  return
+    #end
+
+    folders_to_clean = @ui.folders_to_clean.toPlainText.split("\n")
+    folders_to_clean.select! do |dir_name|
+      File.directory?(dir_name)
     end
+    puts "folders_to_clean:"
+    pp folders_to_clean
+    real_delete = !@ui.pretend.isChecked
+    puts "real_delete = #{real_delete}"
 
-    while (it = @ui.duplicates.takeTopLevelItem(0))
-      file_path = it.text(1)
+    top_level_row = 0
+    while (it = @ui.duplicates.topLevelItem(top_level_row))
+      # Files in item
+      all_files = get_item_files(it)
+      #pp all_files.keys
 
-      puts "delete: #{file_path}"
-      begin
-        File.delete file_path
-      rescue => ex
-        pp ex
+      # Files in folders to clean
+      files_to_delete = all_files.select do |file_path, file_item|
+        file_dir = File.dirname(file_path)
+        to_delete = folders_to_clean.any? {|dir| file_dir.start_with?(dir) }
+      end
+      #pp files_to_delete.keys
+
+      # Leave one file
+      if files_to_delete.count == all_files.count
+        # First file in 'all_files' is top_item
+        top_file = all_files.keys.first
+        files_to_delete.delete top_file
       end
 
-      # Удалить из таблицы
-      it.dispose
+      top_item_removed = false
+
+      files_to_delete.each do |file_path, file_item|
+        puts "delete: #{file_path}"
+        if real_delete
+          begin
+            File.delete file_path
+          rescue => ex
+            pp ex
+          end
+        end
+
+        unless file_item.parent
+          top_item_removed = true
+        end
+
+        # Remove item from tree
+        file_item.dispose
+      end
+
+      unless top_item_removed
+        top_level_row += 1
+      end
     end
 
+  end
+
+  # Files in top item / children items
+  #
+  # Returns { path => item, ...}
+  def get_item_files(it)
+    file_path = it.text(1)
+    all = { file_path => it }
+
+    it.childCount.times do |i|
+      child = it.child(i)
+      file_path = child.text(1)
+      all[file_path] = child
+    end
+
+    all
   end
 
   # Открыть документ или архив
@@ -172,16 +221,22 @@ private
     if @settings.splitter_state
       @ui.splitter.restoreState Qt::ByteArray.new(@settings.splitter_state.to_s)
     end
+    if @settings.splitter_2_state
+      @ui.splitter_2.restoreState Qt::ByteArray.new(@settings.splitter_2_state.to_s)
+    end
 
     @ui.folders.setPlainText(@settings.folders)
+    @ui.folders_to_clean.setPlainText(@settings.folders_to_clean)
   end
 
   # Сохранение настроек
   def save_settings
     @settings.form_geometry = self.saveGeometry.to_s
     @settings.splitter_state = @ui.splitter.saveState.to_s
+    @settings.splitter_2_state = @ui.splitter_2.saveState.to_s
 
     @settings.folders = @ui.folders.toPlainText
+    @settings.folders_to_clean = @ui.folders_to_clean.toPlainText
   end
 
 end

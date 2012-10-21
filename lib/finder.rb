@@ -52,15 +52,15 @@ class Finder
       folder_list = [folder_list]
     end
 
-    all_files = []
+    all_files = {}
     folder_list.each do |folder|
       if File.exist?(folder)
-        list(folder, all_files)
+        list_unique(folder, all_files)
       else
         puts "Folder not exist: #{folder}"
       end
     end
-    by_size = group_by_size(all_files)
+    by_size = group_by_size(all_files.keys)
 
     by_size.each do |size, same_size_files|
       if same_size_files.count > 1
@@ -78,6 +78,18 @@ class Finder
       path = Pathname.new path
       if path.file?
         all << path
+      end
+    end
+
+    all
+  end
+
+  # List files not in 'all' Hash
+  def list_unique(folder, all)
+    Find.find(folder) do |path|
+      path = Pathname.new path
+      if path.file? && !all.include?(path)
+        all[path] = true
       end
     end
 
@@ -115,7 +127,7 @@ class Finder
   # Вычислить уникальный код
   def get_digest(file)
     if @storage
-      @storage.get(file)
+      @storage.get_digest(file)
     else
       @digest_storage ||= {}
       @digest_storage[file] ||= block_crc32(file, 1000, 1)
